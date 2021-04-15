@@ -88,7 +88,7 @@ variable "access_scopes" {
 variable "anthos_service_account_name" {
   description = "Name given to the Service account that will be used by the Anthos cluster components"
   type        = string
-  default     = "baremetal-gcr"
+  default     = "baremetal-gcr-demo"
 }
 
 variable "primary_apis" {
