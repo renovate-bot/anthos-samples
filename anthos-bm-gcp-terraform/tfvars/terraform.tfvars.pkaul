@@ -5,6 +5,6 @@ credentials_file = "/home/puneith/abm-sa.json"
 abm_cluster_id   = "abm-tensorflow"
 machine_type     = "n1-standard-8"
 instance_count   = {
-  "controlplane" : 3
-  "worker" : 3
+  "controlplane" : 1
+  "worker" : 1
 }
