@@ -79,6 +79,7 @@ kubectl get services
 kubectl describe service resnet-abm-service
 
 # Let's send prediction request to ResNet service on ABM
+git clone https://github.com/puneith/serving.git
 sudo tools/run_in_docker.sh python tensorflow_serving/example/resnet_client_grpc.py $IMAGE_URL --server=10.200.0.51:8500
 
 # Destroy resources and demo host
