@@ -1,0 +1,84 @@
+# Welcome to the ABM TensorFlow ResNet Model Serving Demo
+
+# Let's create a demo machine
+export DEMO_HOST="abm-demo-host"
+
+gcloud compute instances create $DEMO_HOST --zone=us-central1-a
+
+# Now scp service account JSON
+gcloud compute scp ~/gcp_keys/cloudmlplat_sa.json puneith@$DEMO_HOST:~/abm-sa.json
+
+# Now ssh into the demo machine and perform steps below
+ssh-gce $DEMO_HOST
+
+# Install Git 
+sudo apt-get install git
+
+# Install Terraform
+# v0.14.10
+export VERSION="0.14.10"
+
+# Remove any previous versions
+sudo apt remove terraform
+
+sudo apt-get install software-properties-common
+
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install terraform=$VERSION
+
+terraform -version
+
+# Let's setup some ABM infrastructure on GCE using Terraform
+git clone https://github.com/GoogleCloudPlatform/anthos-samples.git
+cd anthos-samples
+git checkout abm-gcp-tf-demo
+cd anthos-bm-gcp-terraform
+
+# Make changes to cluster names and few edits
+# [DO THIS] Change tfvars/terraform.tfvars.pkaul cluster_id
+# [DO THIS] Change variables.tf baremetal-gcr-demo service account change
+cp tfvars/terraform.tfvars.pkaul ./terraform.tfvars
+
+#[TODO] Get SA JSON
+
+gcloud auth activate-service-account --key-file=/home/puneith/abm-sa.json
+gcloud compute firewall-rules create ssh --allow tcp:22
+
+# Change cluster name and service account name
+echo "abm-tensorflow-"$(date +"%m%d%H%M")
+[TODO] Change variables.tf and terraform.tfvars
+
+# Terraform instructions
+terraform init
+teraform plan
+terraform apply
+
+# Let's go to pantheon and verify resources
+
+# Let's create cluster using bmctl and perform pre-flight checks and verify
+export CLUSTER_ID=abm-tensorflow
+export KUBECONFIG=$HOME/bmctl-workspace/$CLUSTER_ID/$CLUSTER_ID-kubeconfig
+
+kubectl get nodes
+
+# Let's work on TensorFlow ResNet serving model on ABM Cluster
+git clone https://github.com/puneith/serving.git
+cd serving
+
+kubectl create -f tensorflow_serving/example/resnet_k8s.yaml
+
+# Let's view deployments and pods
+kubectl get deployments
+kubectl get pods
+
+kubectl get services
+kubectl describe service resnet-service
+
+# Let's send prediction request to ResNet service on ABM
+sudo tools/run_in_docker.sh python tensorflow_serving/example/resnet_client_grpc.py $IMAGE_URL --server=10.200.0.51:8500
+
+# Destroy resources and demo host
+terraform destroy
+
+gcloud compute instances delete $DEMO_HOST
