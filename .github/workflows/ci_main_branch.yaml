@@ -24,7 +24,7 @@ jobs:
   static-code-tests:
     runs-on: [self-hosted, runner-nov-22]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: License Check
         run: |
           addlicense -check -ignore anthos-bm-openstack-terraform/resources/cloud-config.yaml ./
@@ -59,7 +59,7 @@ jobs:
           'anthos-multi-cloud/Azure'
         ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Terraform Validate
         timeout-minutes: 20
         env:
@@ -79,7 +79,7 @@ jobs:
         # update this list as new unit tests in golang are added to the repo
         go-test-dir: ['anthos-bm-gcp-terraform/test/unit/']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: ${{ matrix.go-test-dir }}/../go.mod
